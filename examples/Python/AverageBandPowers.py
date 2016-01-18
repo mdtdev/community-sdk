@@ -9,7 +9,7 @@ from __builtin__ import exit
 
 try:
     if sys.platform.startswith('win32'):
-        libEDK = cdll.LoadLibrary("../../bin/win32/edk.dll")
+        libEDK = cdll.LoadLibrary("../../bin/win64/edk.dll")
     elif sys.platform.startswith('linux'):
         srcDir = os.getcwd()
         libPath = srcDir + "/../../bin/linux64/libedk.so"
@@ -49,7 +49,7 @@ high_beta = pointer(high_betaValue)
 gamma     = pointer(gammaValue)
 theta     = pointer(thetaValue)
 
-channelList = array('I',[3, 7, 9, 12, 16])   # IED_AF3, IED_AF4, IED_T7, IED_T8, IED_Pz 
+channelList = array('I',[3, 7, 9, 12, 16])   # IED_AF3, IED_AF4, IED_T7, IED_T8, IED_Pz
 
 # -------------------------------------------------------------------------
 print "==================================================================="
@@ -66,7 +66,7 @@ print "Theta, Alpha, Low_beta, High_beta, Gamma \n"
 
 while (1):
     state = libEDK.IEE_EngineGetNextEvent(eEvent)
-    
+
     if state == 0:
         eventType = libEDK.IEE_EmoEngineEventGetType(eEvent)
         libEDK.IEE_EmoEngineEventGetUserId(eEvent, user)
@@ -74,16 +74,16 @@ while (1):
             ready = 1
             libEDK.IEE_FFTSetWindowingType(userID, 1);  # 1: libEDK.IEE_WindowingTypes_enum.IEE_HAMMING
             print "User added"
-                        
+
         if ready == 1:
-            for i in channelList: 
+            for i in channelList:
                 result = c_int(0)
                 result = libEDK.IEE_GetAverageBandPowers(userID, i, theta, alpha, low_beta, high_beta, gamma)
-                
+
                 if result == 0:    #EDK_OK
-                    print "%.6f, %.6f, %.6f, %.6f, %.6f \n" % (thetaValue.value, alphaValue.value, 
+                    print "%.6f, %.6f, %.6f, %.6f, %.6f \n" % (thetaValue.value, alphaValue.value,
                                                                low_betaValue.value, high_betaValue.value, gammaValue.value)
-                 
+
     elif state != 0x0600:
         print "Internal error in Emotiv Engine ! "
     time.sleep(0.1)
